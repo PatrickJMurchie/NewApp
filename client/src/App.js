@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Register from './pages/register.js';
+import Register from './pages/register';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');

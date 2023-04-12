@@ -1,9 +1,24 @@
 const express = require('express')
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const { MongoClient } = require('mongodb');
+const cors = require('cors');
+const { v4: uuidv4 } = require('uuid');
 
+const uri = 'mongodb+srv://patrickjohnmurchie:Btg8rvAJXbrAi1yc@cluster0.qmh8sr5.mongodb.net/test?retryWrites=true&w=majority';
 
 const app = express()
+
+app.use(express.json());
+
+// Allow all origins to make requests to this app
+app.use(cors());
+
+app.use(
+  cors({
+    origin: 'http://localhost:3000' // allow requests only from this origin
+    })
+);
 
 
 //Schemas for database
@@ -21,18 +36,20 @@ const quoteSchema = new Schema({
   });
 
   const userSchema = new Schema({
-    userID: {type: String,required: true, unique: true},
-    username: {type: String,required: true,unique: true},
-    password: {type: String,required: true}
+    userID: { type: String, required: true, unique: true },
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true }
   });
+  
 
-  module.exports = {
-    Quote: mongoose.model('Quote', quoteSchema),
-    User: mongoose.model('User', userSchema)
-  };
+
+  const Quote = mongoose.model('Quote', quoteSchema);
+  const User = mongoose.model('User', userSchema);
+  
+  module.exports = { Quote, User };
 
 //Connecting to database
-mongoose.connect('mongodb://localhost/mydatabase', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('MongoDB connected');
   })
@@ -40,9 +57,11 @@ mongoose.connect('mongodb://localhost/mydatabase', { useNewUrlParser: true, useU
     console.log('MongoDB connection error:', error);
   });
 
-app.post('/api/users', (req, res) => {
+
+// Endpoints
+app.post('/register', (req, res) => {
   const newUser = new User({
-    userID: req.body.userID,
+    userID: uuidv4(),
     username: req.body.username,
     password: req.body.password
   });
@@ -52,11 +71,12 @@ app.post('/api/users', (req, res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-app.get('/api/quotes', (req, res) => {
+
+
+app.get('/quotes', (req, res) => {
     Quote.find()
       .then(quotes => res.json(quotes))
       .catch(err => res.status(400).json('Error: ' + err));
   });
-  
 
 app.listen(5000, () => {console.log("Server started on port 5000")})
