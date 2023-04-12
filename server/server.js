@@ -72,6 +72,32 @@ app.post('/register', (req, res) => {
 });
 
 
+// Login
+
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
+
+    if (user.password !== password) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
+
+    // Generate a JWT token and send it in the response
+    const token = generateToken(user);
+    res.json({ token });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
 
 app.get('/quotes', (req, res) => {
     Quote.find()

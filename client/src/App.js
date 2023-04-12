@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Register from './pages/register';
+import Login from './pages/login';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -9,7 +10,7 @@ function App() {
   if (currentPage === 'home') {
     page = <HomePage />;
   } else if (currentPage === 'login') {
-    page = <LoginPage />;
+    page = <Login />;
   } else if (currentPage === 'register') {
     page = <Register />;
   }
@@ -30,10 +31,6 @@ function App() {
 
 function HomePage() {
   return <h1>Home Page</h1>;
-}
-
-function LoginPage() {
-  return <h1>Login Page</h1>;
 }
 
 export default App;
