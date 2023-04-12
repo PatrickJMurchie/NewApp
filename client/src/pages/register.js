@@ -23,6 +23,7 @@ function Register() {
 
   return (
     <form onSubmit={handleSubmit}>
+      <h1>Register</h1>
       <div>
         <label htmlFor="username">Username:</label>
         <input type="text" id="username" value={username} onChange={e => setUsername(e.target.value)} />

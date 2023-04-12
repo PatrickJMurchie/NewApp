@@ -1,7 +1,6 @@
 const express = require('express')
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const { MongoClient } = require('mongodb');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
@@ -20,12 +19,21 @@ app.use(
     })
 );
 
+// Make token
+const jwt = require('jsonwebtoken');
+
+function generateToken(user) {
+  const payload = { id: user.id, username: user.username };
+  const token = jwt.sign(payload, 'yourSecretKey', { expiresIn: '1h' });
+  return token;
+}
+
 
 //Schemas for database
 const quoteSchema = new Schema({
     quoteID: { type: String, unique: true },
     userID: { type: String, required: true },
-    title: { type: String },
+    title: { type: String, unique: true },
     description: { type: String, required: true },
     numOfWorkers: { type: Number, required: true },
     workerRate: { type: Number, required: true },
@@ -99,10 +107,42 @@ app.post('/login', async (req, res) => {
 
 
 
-app.get('/quotes', (req, res) => {
-    Quote.find()
-      .then(quotes => res.json(quotes))
-      .catch(err => res.status(400).json('Error: ' + err));
-  });
+app.post('/quotes', async (req, res) => {
+  const {
+    userID,
+    title,
+    description,
+    numOfWorkers,
+    workerRate,
+    startDate,
+    endDate,
+    fudgeFactor,
+    totalCost,
+  } = req.body;
+
+  try {
+    // Create a new quote object
+    const newQuote = new Quote({
+      quoteID: uuidv4(),
+      userID,
+      title,
+      description,
+      numOfWorkers,
+      workerRate,
+      startDate,
+      endDate,
+      fudgeFactor,
+      totalCost,
+    });
+
+    // Save the new quote object to the database
+    await newQuote.save();
+
+    res.status(201).json({ message: 'Quote created successfully' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 app.listen(5000, () => {console.log("Server started on port 5000")})
