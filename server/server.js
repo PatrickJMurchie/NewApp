@@ -33,7 +33,7 @@ function generateToken(user) {
 //Schemas for database
 const quoteSchema = new Schema({
     quoteID: { type: String },
-    userID: { type: String, required: true },
+    userID: [{ type : mongoose.Schema.Types.ObjectId, ref: 'User' }],
     title: { type: String },
     description: { type: String, required: true },
     numOfWorkers: { type: Number, required: true },
@@ -48,7 +48,6 @@ const quoteSchema = new Schema({
   const userSchema = new Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    userID: { type: String, required: true, unique: true } // add unique option here
   });
   
   
@@ -120,11 +119,11 @@ app.post('/quotes', async (req, res) => {
     console.log("Quote2")
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, '1046838936142178202908247229722173761275457');
-    const userID = decoded.id;
+    const userId = decoded.id;
 
       // Find the user object using the userID
-    const user = await User.findById(userID);
-    console.log(userID)
+    const user = await User.findById(userId);
+    console.log(userId)
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -162,6 +161,30 @@ app.post('/quotes', async (req, res) => {
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.get('/quotelist', async (req, res) => {
+  try {
+
+    // Get the user ID from the JWT token
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Authorization header missing or invalid' });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, '1046838936142178202908247229722173761275457');
+    const userId = decoded.userId;
+
+    const user = await User.findOne({userId}).exec();
+    const quotes = await Quote.findOne({ userID: user._id }).exec();
+
+    res.json(quotes);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal server error');
   }
 });
 
