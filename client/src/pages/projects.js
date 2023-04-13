@@ -1,20 +1,30 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 const NewProjectForm = () => {
   const [project, setProject] = useState({
     title: "",
     description: "",
+    hoursWeekly: "0",
     numOfWorkers: 0,
     workerRate: 0,
     startDate: "",
     endDate: "",
+    fudgeFactor: 0.0,
     totalCost: 0,
   });
 
+const [totalCost, setTotalCost] = useState(0);
+
 const handleSubmit = async (event) => {
   event.preventDefault();
-  console.log(event)
-  const projectData = JSON.stringify(project);
+  
+  //fudgefactor
+  project.fudgeFactor = Math.random() * (1.2 - 0.8) + 0.8;
+
+  const cost = project.hoursWeekly * project.numOfWorkers * project.workerRate * project.fudgeFactor;
+  setTotalCost(cost);
+  
+  const projectData = JSON.stringify({...project, totalCost: cost});
   console.log(project)
   try {
     const token = localStorage.getItem('token');
@@ -68,7 +78,18 @@ const handleSubmit = async (event) => {
       </label>
       <br />
       <label>
-        Num of hours worked:
+        Num of Hours Worked a week:
+        <input
+          type="number"
+          value={project.hoursWeekly}
+          onChange={(event) =>
+            setProject({ ...project, hoursWeekly: event.target.value })
+          }
+        />
+      </label>
+      <br />
+      <label>
+        Num of Workers:
         <input
           type="number"
           value={project.numOfWorkers}
@@ -79,7 +100,7 @@ const handleSubmit = async (event) => {
       </label>
       <br />
       <label>
-        Worker Rate:
+        Hourly Rate:
         <input
           type="number"
           value={project.workerRate}
@@ -114,13 +135,7 @@ const handleSubmit = async (event) => {
       <br />
       <label>
         Total Cost:
-        <input
-          type="number"
-          value={project.totalCost}
-          onChange={(event) =>
-            setProject({ ...project, totalCost: event.target.value })
-          }
-        />
+        <span>{totalCost}</span>
       </label>
       <br />
       <button type="submit">Submit</button>

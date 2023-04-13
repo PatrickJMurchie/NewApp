@@ -69,3 +69,11 @@ div {
   text-align: center;
 }
 
+ul {
+  list-style: none;
+}
+
+li {
+  margin-left: 0;
+  padding-left: 0;
+}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Register from './pages/register';
 import Login from './pages/login';
 import ProjectsPage from './pages/projects';
+import ProjectList from './pages/projectsList';
 import './App.css';
 
 function App() {
@@ -29,6 +30,8 @@ function App() {
     page = <Register />;
   } else if (currentPage === 'projects' && isLoggedIn) {
     page = <ProjectsPage onLogout={handleLogout} />;
+  } else if (currentPage === 'projectList' && isLoggedIn) {
+    page = <ProjectList onLogout={handleLogout} />;
   } else if (isLoggedIn) {
     page = <h1>Access Denied</h1>; // show this if logged in but on an invalid page
   } else {
@@ -63,7 +66,26 @@ function App() {
 
 
 function HomePage() {
-  return <h1>Home Page</h1>;
+  return (
+
+    <div>
+      <h1>Welcome to Qudget</h1>
+      <p>Qudget is a website designed to help you prepare quotes and budgets for project bids. Our platform allows you to:</p>
+      <ul>
+        <li>Enter time periods of work for your projects</li>
+        <li>Define hourly or daily rates for your workers</li>
+        <li>Calculate final budget figures using a sensible function</li>
+        <li>Display information on how the final budget figure was calculated</li>
+        <li>Create and access your own user accounts</li>
+        <li>Save and delete quotes using our database</li>
+        <li>Change existing quotes</li>
+        <li>Add non-human resources to the calculation</li>
+        <li>Select different pay grades such as "subject expert" or "casual worker"</li>
+        <li>Keep hourly or daily rates private from users using our "fudge factor"</li>
+      </ul>
+      <p>With Qudget, you can save time and make more accurate project bids.</p>
+    </div>
+  );
 }
 
 export default App;
