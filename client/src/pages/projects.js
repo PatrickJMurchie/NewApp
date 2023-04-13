@@ -11,32 +11,34 @@ const NewProjectForm = () => {
     totalCost: 0,
   });
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  console.log(event)
+  const projectData = JSON.stringify(project);
+  console.log(project)
+  try {
+    const token = localStorage.getItem('token');
+    console.log(token)
+
+    const response = await fetch('http://localhost:5000/quotes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: projectData
+    });
   
-    const projectData = JSON.stringify(project);
+    const data = await response.json();
   
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/quotes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: projectData
-      });
-  
-      const data = await response.json();
-  
-      if (response.ok) {
-        const token = data.token;
-        localStorage.setItem('token', token);
-      }
-    } catch (error) {
-      console.log(error);
+    if (response.ok) {
+      const token = data.token;
+      localStorage.setItem('token', token);
     }
-  };
+  } catch (error) {
+    console.log(error);
+  }
+};
   
 
   //    
@@ -66,7 +68,7 @@ const NewProjectForm = () => {
       </label>
       <br />
       <label>
-        Num of Workers:
+        Num of hours worked:
         <input
           type="number"
           value={project.numOfWorkers}
@@ -105,6 +107,7 @@ const NewProjectForm = () => {
           value={project.endDate}
           onChange={(event) =>
             setProject({ ...project, endDate: event.target.value })
+
           }
         />
       </label>

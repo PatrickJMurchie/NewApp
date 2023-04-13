@@ -49,7 +49,8 @@ function App() {
           )}
           {isLoggedIn && (
             <>
-              <li><button onClick={() => setCurrentPage('projects')}>Projects</button></li>
+              <li><button onClick={() => setCurrentPage('projects')}>Create Project</button></li>
+              <li><button onClick={() => setCurrentPage('projectList')}>Project List</button></li>
               <li><button onClick={() => handleLogout()}>Logout</button></li>
             </>
           )}
