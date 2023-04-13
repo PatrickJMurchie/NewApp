@@ -11,6 +11,7 @@ function App() {
   const handleLogin = () => {
     // Your login logic here
     setIsLoggedIn(true);
+    setCurrentPage('projects');
   }
 
   const handleLogout = () => {

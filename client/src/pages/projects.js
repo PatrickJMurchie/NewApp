@@ -13,22 +13,31 @@ const NewProjectForm = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+  
+    const projectData = JSON.stringify(project);
+  
     try {
-      const response = await fetch('http://localhost:5000/register', {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/quotes', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(project)
+        body: projectData
       });
+  
       const data = await response.json();
-      console.log(project);
+  
+      if (response.ok) {
+        const token = data.token;
+        localStorage.setItem('token', token);
+      }
     } catch (error) {
       console.log(error);
     }
   };
   
-
 
   //    
 

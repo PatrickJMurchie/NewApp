@@ -1,14 +1,15 @@
 const express = require('express')
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
 const uri = 'mongodb+srv://patrickjohnmurchie:Btg8rvAJXbrAi1yc@cluster0.qmh8sr5.mongodb.net/test?retryWrites=true&w=majority';
 
 const app = express()
-
 app.use(express.json());
+
 
 // Allow all origins to make requests to this app
 app.use(cors());
@@ -44,7 +45,6 @@ const quoteSchema = new Schema({
   });
 
   const userSchema = new Schema({
-    userID: { type: String, required: true, unique: true },
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true }
   });
@@ -69,7 +69,6 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
 // Endpoints
 app.post('/register', (req, res) => {
   const newUser = new User({
-    userID: uuidv4(),
     username: req.body.username,
     password: req.body.password
   });
@@ -78,7 +77,6 @@ app.post('/register', (req, res) => {
     .then(() => res.json('User added!'))
     .catch(err => res.status(400).json('Error: ' + err));
 });
-
 
 // Login
 
@@ -105,26 +103,42 @@ app.post('/login', async (req, res) => {
   }
 });
 
-
-
 app.post('/quotes', async (req, res) => {
-  const {
-    userID,
-    title,
-    description,
-    numOfWorkers,
-    workerRate,
-    startDate,
-    endDate,
-    fudgeFactor,
-    totalCost,
-  } = req.body;
 
   try {
+    // Get the user ID from the JWT token
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Authorization header missing or invalid' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, 'yourSecretKey');
+    const userID = decoded.id;
+
+      // Find the user object using the userID
+    const user = await User.findById(userID);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const {
+      title,
+      description,
+      numOfWorkers,
+      workerRate,
+      startDate,
+      endDate,
+      fudgeFactor,
+      totalCost,
+    } = req.body;
+
     // Create a new quote object
     const newQuote = new Quote({
       quoteID: uuidv4(),
-      userID,
+      userID, 
       title,
       description,
       numOfWorkers,
@@ -135,13 +149,13 @@ app.post('/quotes', async (req, res) => {
       totalCost,
     });
 
-    // Save the new quote object to the database
-    await newQuote.save();
+      // Save the new quote object to the database
+      await newQuote.save();
 
-    res.status(201).json({ message: 'Quote created successfully' });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Internal server error' });
+      res.status(201).json({ message: 'Quote created successfully' });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: 'Internal server error' });
   }
 });
 
