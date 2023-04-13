@@ -1,7 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-
+const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
@@ -21,7 +21,7 @@ app.use(
 );
 
 // Make token
-const jwt = require('jsonwebtoken');
+
 
 function generateToken(user) {
   const payload = { id: user.id, username: user.username };
@@ -33,7 +33,7 @@ function generateToken(user) {
 //Schemas for database
 const quoteSchema = new Schema({
     quoteID: { type: String },
-    userID: [{ type : mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    userID: { type : mongoose.Schema.Types.ObjectId, unique: false, ref: 'User'},
     title: { type: String },
     description: { type: String, required: true },
     numOfWorkers: { type: Number, required: true },
@@ -119,11 +119,11 @@ app.post('/quotes', async (req, res) => {
     console.log("Quote2")
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, '1046838936142178202908247229722173761275457');
-    const userId = decoded.id;
+    const userID = decoded.id;
 
       // Find the user object using the userID
-    const user = await User.findById(userId);
-    console.log(userId)
+    const user = await User.findById(userID);
+    console.log(userID)
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -184,6 +184,7 @@ app.get('/quotelist', async (req, res) => {
     res.json(quotes);
   } catch (error) {
     console.error(error);
+
     res.status(500).send('Internal server error');
   }
 });

@@ -20,7 +20,7 @@ function ProjectList() {
           }
       
           const quoteList = await response.json();
-          console.log(quoteList);
+          console.log()
           setQuoteList(quoteList);
       
           // rest of the code
@@ -48,26 +48,33 @@ function ProjectList() {
           <th>Worker Rate</th>
           <th>Start Date</th>
           <th>End Date</th>
-          <th>Fudge Factor</th>
           <th>Total Cost</th>
         </tr>
       </thead>
       <tbody>
-        {Array.isArray(quoteList) &&
-          quoteList.map((quote) => (
-            <tr key={quote.userID}>
-              <td>{quote.title}</td>
-              <td>{quote.description}</td>
-              <td>{quote.hoursWeekly}</td>
-              <td>{quote.numOfWorkers}</td>
-              <td>{quote.workerRate}</td>
-              <td>{quote.startDate}</td>
-              <td>{quote.endDate}</td>
-              <td>{quote.fudgeFactor}</td>
-              <td>{quote.totalCost}</td>
-            </tr>
-          ))}
-      </tbody>
+      <tr>
+  {quoteList &&
+    Object.keys(quoteList)
+      .filter(key => !["_id", "userID", "quoteID","fudgeFactor"].includes(key))
+      .map(key => {
+        const value = quoteList[key];
+        if (key === "startDate" || key === "endDate") {
+          const date = new Date(value);
+          return <td key={key}>{date.toLocaleDateString("en-GB")}</td>;
+        } else {
+          return (
+            <td key={key}>
+              {typeof value === "number" ? value.toFixed(2) : value}
+            </td>
+          );
+        }
+      })
+  }
+</tr>
+
+
+
+    </tbody>
     </table>
   );
 }
