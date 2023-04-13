@@ -1,4 +1,4 @@
-# NewApp
+# Qudget
 clone the repo
 
 -Mongo-
